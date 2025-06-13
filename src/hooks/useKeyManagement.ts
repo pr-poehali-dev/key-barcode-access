@@ -178,5 +178,8 @@ export const useKeyManagement = () => {
     returnKey,
     getKeyByBarcode,
     getActiveAssignments,
+    // Добавляем алиасы для совместимости
+    editKey: updateKey,
+    editUser: updateUser,
   };
 };
