@@ -6,6 +6,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import Icon from "@/components/ui/icon";
 import type { Key, User } from "@/types";
 
@@ -14,6 +25,7 @@ interface AdminPanelProps {
   users: User[];
   onAddKey: (keyData: Omit<Key, "id" | "createdAt">) => void;
   onAddUser: (userData: Omit<User, "id" | "createdAt">) => void;
+  onDeleteUser: (userId: string) => void;
   onLogout: () => void;
 }
 
@@ -22,6 +34,7 @@ const AdminPanel = ({
   users,
   onAddKey,
   onAddUser,
+  onDeleteUser,
   onLogout,
 }: AdminPanelProps) => {
   const [keyForm, setKeyForm] = useState({
@@ -121,7 +134,35 @@ const AdminPanel = ({
                         {user.department}
                       </Badge>
                     </div>
-                    <Icon name="User" className="w-5 h-5 text-gray-400" />
+                    <div className="flex items-center gap-2">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Icon name="Trash2" className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Удалить пользователя?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Вы уверены, что хотите удалить пользователя "
+                              {user.name}"? Это действие нельзя отменить.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Отмена</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => onDeleteUser(user.id)}
+                            >
+                              Удалить
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <Icon name="User" className="w-5 h-5 text-gray-400" />
+                    </div>
                   </div>
                 ))}
               </div>

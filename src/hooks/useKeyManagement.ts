@@ -88,6 +88,12 @@ export const useKeyManagement = () => {
     saveToStorage("users", updatedUsers);
   };
 
+  const deleteUser = (userId: string) => {
+    const updatedUsers = users.filter((user) => user.id !== userId);
+    setUsers(updatedUsers);
+    saveToStorage("users", updatedUsers);
+  };
+
   const assignKey = (keyId: string, userId: string, notes?: string) => {
     const assignment: KeyAssignment = {
       id: Date.now().toString(),
@@ -133,12 +139,19 @@ export const useKeyManagement = () => {
     return assignments.filter((a) => !a.returnedAt);
   };
 
+  const deleteUser = (userId: string) => {
+    const updatedUsers = users.filter((user) => user.id !== userId);
+    setUsers(updatedUsers);
+    saveToStorage("users", updatedUsers);
+  };
+
   return {
     keys,
     users,
     assignments,
     addKey,
     addUser,
+    deleteUser,
     assignKey,
     returnKey,
     getKeyByBarcode,
