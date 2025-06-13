@@ -139,12 +139,6 @@ export const useKeyManagement = () => {
     return assignments.filter((a) => !a.returnedAt);
   };
 
-  const deleteUser = (userId: string) => {
-    const updatedUsers = users.filter((user) => user.id !== userId);
-    setUsers(updatedUsers);
-    saveToStorage("users", updatedUsers);
-  };
-
   return {
     keys,
     users,
