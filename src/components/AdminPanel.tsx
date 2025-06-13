@@ -26,6 +26,12 @@ interface AdminPanelProps {
   onAddKey: (keyData: Omit<Key, "id" | "createdAt">) => void;
   onAddUser: (userData: Omit<User, "id" | "createdAt">) => void;
   onDeleteUser: (userId: string) => void;
+  onDeleteKey: (keyId: string) => void;
+  onUpdateKey: (keyId: string, keyData: Omit<Key, "id" | "createdAt">) => void;
+  onUpdateUser: (
+    userId: string,
+    userData: Omit<User, "id" | "createdAt">,
+  ) => void;
   onLogout: () => void;
 }
 
@@ -35,6 +41,9 @@ const AdminPanel = ({
   onAddKey,
   onAddUser,
   onDeleteUser,
+  onDeleteKey,
+  onUpdateKey,
+  onUpdateUser,
   onLogout,
 }: AdminPanelProps) => {
   const [keyForm, setKeyForm] = useState({
@@ -50,6 +59,9 @@ const AdminPanel = ({
     department: "",
   });
 
+  const [editingKey, setEditingKey] = useState<Key | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+
   const handleKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onAddKey({ ...keyForm, isAvailable: true });
@@ -60,6 +72,49 @@ const AdminPanel = ({
     e.preventDefault();
     onAddUser(userForm);
     setUserForm({ name: "", email: "", department: "" });
+  };
+
+  const handleUpdateKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingKey) {
+      onUpdateKey(editingKey.id, {
+        barcode: keyForm.barcode,
+        name: keyForm.name,
+        description: keyForm.description,
+        location: keyForm.location,
+        isAvailable: editingKey.isAvailable,
+      });
+      setEditingKey(null);
+      setKeyForm({ barcode: "", name: "", description: "", location: "" });
+    }
+  };
+
+  const handleUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser) {
+      onUpdateUser(editingUser.id, userForm);
+      setEditingUser(null);
+      setUserForm({ name: "", email: "", department: "" });
+    }
+  };
+
+  const startEditingKey = (key: Key) => {
+    setEditingKey(key);
+    setKeyForm({
+      barcode: key.barcode,
+      name: key.name,
+      description: key.description,
+      location: key.location,
+    });
+  };
+
+  const startEditingUser = (user: User) => {
+    setEditingUser(user);
+    setUserForm({
+      name: user.name,
+      email: user.email,
+      department: user.department,
+    });
   };
 
   return (
@@ -107,7 +162,39 @@ const AdminPanel = ({
                         Штрихкод: {key.barcode} | {key.location}
                       </p>
                     </div>
-                    <Icon name="Key" className="w-5 h-5 text-gray-400" />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditingKey(key)}
+                      >
+                        <Icon name="Edit" className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Icon name="Trash2" className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Удалить ключ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Вы уверены, что хотите удалить ключ "{key.name}"?
+                              Это действие нельзя отменить.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Отмена</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => onDeleteKey(key.id)}
+                            >
+                              Удалить
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -135,6 +222,13 @@ const AdminPanel = ({
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditingUser(user)}
+                      >
+                        <Icon name="Edit" className="w-4 h-4" />
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="outline" size="sm">
@@ -174,10 +268,15 @@ const AdminPanel = ({
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Добавить ключ</CardTitle>
+                <CardTitle>
+                  {editingKey ? "Редактировать ключ" : "Добавить ключ"}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleKeySubmit} className="space-y-4">
+                <form
+                  onSubmit={editingKey ? handleUpdateKey : handleKeySubmit}
+                  className="space-y-4"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="keyBarcode">Штрихкод</Label>
                     <Input
@@ -234,19 +333,47 @@ const AdminPanel = ({
                     />
                   </div>
                   <Button type="submit" className="w-full">
-                    <Icon name="Plus" className="w-4 h-4 mr-2" />
-                    Добавить ключ
+                    <Icon
+                      name={editingKey ? "Save" : "Plus"}
+                      className="w-4 h-4 mr-2"
+                    />
+                    {editingKey ? "Сохранить изменения" : "Добавить ключ"}
                   </Button>
+                  {editingKey && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setEditingKey(null);
+                        setKeyForm({
+                          barcode: "",
+                          name: "",
+                          description: "",
+                          location: "",
+                        });
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  )}
                 </form>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Добавить пользователя</CardTitle>
+                <CardTitle>
+                  {editingUser
+                    ? "Редактировать пользователя"
+                    : "Добавить пользователя"}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleUserSubmit} className="space-y-4">
+                <form
+                  onSubmit={editingUser ? handleUpdateUser : handleUserSubmit}
+                  className="space-y-4"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="userName">Имя</Label>
                     <Input
@@ -291,9 +418,27 @@ const AdminPanel = ({
                     />
                   </div>
                   <Button type="submit" className="w-full">
-                    <Icon name="UserPlus" className="w-4 h-4 mr-2" />
-                    Добавить пользователя
+                    <Icon
+                      name={editingUser ? "Save" : "UserPlus"}
+                      className="w-4 h-4 mr-2"
+                    />
+                    {editingUser
+                      ? "Сохранить изменения"
+                      : "Добавить пользователя"}
                   </Button>
+                  {editingUser && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setEditingUser(null);
+                        setUserForm({ name: "", email: "", department: "" });
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  )}
                 </form>
               </CardContent>
             </Card>

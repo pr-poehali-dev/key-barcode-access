@@ -20,6 +20,10 @@ const KeyManagement = ({ onLogout }: KeyManagementProps) => {
     assignments,
     addKey,
     addUser,
+    deleteKey,
+    deleteUser,
+    updateKey,
+    updateUser,
     assignKey,
     returnKey,
     getKeyByBarcode,
@@ -86,6 +90,10 @@ const KeyManagement = ({ onLogout }: KeyManagementProps) => {
               users={users}
               onAddKey={addKey}
               onAddUser={addUser}
+              onDeleteUser={deleteUser}
+              onDeleteKey={deleteKey}
+              onUpdateKey={updateKey}
+              onUpdateUser={updateUser}
               onLogout={onLogout}
             />
           </TabsContent>

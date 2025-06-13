@@ -94,6 +94,31 @@ export const useKeyManagement = () => {
     saveToStorage("users", updatedUsers);
   };
 
+  const deleteKey = (keyId: string) => {
+    const updatedKeys = keys.filter((key) => key.id !== keyId);
+    setKeys(updatedKeys);
+    saveToStorage("keys", updatedKeys);
+  };
+
+  const updateKey = (keyId: string, keyData: Omit<Key, "id" | "createdAt">) => {
+    const updatedKeys = keys.map((key) =>
+      key.id === keyId ? { ...key, ...keyData } : key,
+    );
+    setKeys(updatedKeys);
+    saveToStorage("keys", updatedKeys);
+  };
+
+  const updateUser = (
+    userId: string,
+    userData: Omit<User, "id" | "createdAt">,
+  ) => {
+    const updatedUsers = users.map((user) =>
+      user.id === userId ? { ...user, ...userData } : user,
+    );
+    setUsers(updatedUsers);
+    saveToStorage("users", updatedUsers);
+  };
+
   const assignKey = (keyId: string, userId: string, notes?: string) => {
     const assignment: KeyAssignment = {
       id: Date.now().toString(),
@@ -146,6 +171,9 @@ export const useKeyManagement = () => {
     addKey,
     addUser,
     deleteUser,
+    deleteKey,
+    updateKey,
+    updateUser,
     assignKey,
     returnKey,
     getKeyByBarcode,
